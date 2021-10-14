@@ -1,24 +1,17 @@
-terraform {
-  required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = "3.62.0"
-    }
-  }
+/*Declare a local input used for hardcoded inputs */
+locals {
+  name = "Brian-Test"
 }
 
-provider "aws" {
-  profile = "default"
-  region  = "us-east-2"
-}
-
-
-
+/* Information to deploy server in AWS */
 resource "aws_instance" "test-instance" {
+  provider = aws.us-east
   ami           = "ami-074cce78125f09d61"
   instance_type = var.instance_type
 
+/* Sets the name to the local value */
   tags = {
-    Name = "Test Instance for Training"
+    Name = "MyServer-${local.name}"
   }
 }
+
