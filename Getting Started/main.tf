@@ -12,9 +12,11 @@ provider "aws" {
   region  = "us-east-2"
 }
 
+
+
 resource "aws_instance" "test-instance" {
   ami           = "ami-074cce78125f09d61"
-  instance_type = "t2.micro"
+  instance_type = var.instance_type
 
   tags = {
     Name = "Test Instance for Training"
