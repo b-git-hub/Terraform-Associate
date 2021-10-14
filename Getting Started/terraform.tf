@@ -1,14 +1,13 @@
-/* Provided in Hashicorp Documentation to connect to AWS*/
+/*Connectiong to Terraform Cloud to store the state file */
 terraform {
   backend "remote" {
-    hostname     = "app.terraform.io"
     organization = "my-workspace"
 
     workspaces {
       name = "getting-started"
     }
   }
-  
+/* Provided in Hashicorp Documentation to connect to AWS*/
   required_providers {
     aws = {
       source  = "hashicorp/aws"

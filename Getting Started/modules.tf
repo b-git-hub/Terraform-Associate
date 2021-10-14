@@ -1,5 +1,5 @@
-
-/*Defining my first module registry.terraform.io using providers is slightly different in modules*/
+/*
+Defining my first module registry.terraform.io using providers is slightly different in modules
 module "vpc" {
   source = "terraform-aws-modules/vpc/aws"
   providers = {
@@ -21,3 +21,4 @@ module "vpc" {
     Environment = "dev"
   }
 }
+*/
