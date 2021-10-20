@@ -5,4 +5,4 @@ runcmd:
   - systemctl start httpd
   - sudo systemctl enable httpd
 
-#Install Apache, enable it and start it on reboot cloud init
+#Install Apache, enable it and start it on reboot
