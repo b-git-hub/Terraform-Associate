@@ -50,11 +50,13 @@ resource "aws_security_group" "sg_my_server" {
   ]
 }
 
+/*From the SSH keys located locally apply the public key to the deployer */
 resource "aws_key_pair" "deployer" {
   key_name   = "deployer-key"
   public_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDDXhUR+7q3c+ldvXuoxfJTntCu2hEYDDTheBcS6Rov7BuvTQHwNqcH1H59rhHEziXrTRJvxCxyfPWhqSJSUv+hJ4MH2v4ebIYZSWJKZ8NEM8EoSCpSXRjUL72oVyMp3IV05SCb0vVFFKeiXJEx3KmQnbE5/vDmbGzdaaIXlGW8qZceEPxBldgL1yHW4/566hRw/wc9vkQmkfY0otYbRucbMJNmn0SCOpfhDq/0J9WKRHWDQAScHOh7xB9Watha14p3Ugp8WOJjeLvD63JDVbi1T/klQUYQg7DvT0EuUqmzpiBaFlFE9Yh497Ziowg/eqJflcUivo+Q4crg6jU2TMNy7KR0rk0M/2Qx3V3dqfjC99AwHrzjjS3M2TB2qdEhAHX7U55QFcdrRuL2ZdOFzlbkCsXN2hVYJmtqU3Nfi60XTvDUdWxP9qpFOH2XSRcVdQiOkhw7RnczF1wdM6lut1jpGoaayAS+MJN+KrQM65hn36nTO9ybZw9xmREDyJrlMM0= brian@DESKTOP-I603PK4"
 }
 
+/*Output Public IP of AWS Apache */
 output "public_ip" {
   value = aws_instance.test-instance.public_ip
 }
@@ -75,7 +77,19 @@ resource "aws_instance" "test-instance" {
   vpc_security_group_ids = [aws_security_group.sg_my_server.id]
   /* Referencing the data with the yaml information (install apache) */
   user_data = data.template_file.user_data.rendered
-
+  /*Use a remote-exec to output a file on the host */
+  connection {
+    type     = "ssh"
+    user     = "ec2-user"
+    host     = "${self.public_ip}"
+    private_key = "${file("/home/brian/.ssh/terraform")}"
+  }
+  provisioner "remote-exec" {
+    inline = [
+      "echo ${self.private_ip} >> /home/ec2-user/private_ips.txt"
+    ]
+  }
+  
   tags = {
     Name = "MyServer"
   }

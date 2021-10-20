@@ -1,4 +1,5 @@
 terraform {
+  /*
   backend "remote" {
     organization = "my-workspace"
 
@@ -6,6 +7,7 @@ terraform {
       name = "provisioner"
     }
   }
+  */
   required_providers {
     aws = {
       source  = "hashicorp/aws"
