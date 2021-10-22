@@ -14,40 +14,46 @@ provider "aws" {
 
 /* Creating my template for scaling up and down */
 resource "aws_launch_configuration" "example" {
-  name          = "web_config"
-  image_id      = "ami-00399ec92321828f5"
-  instance_type = "t2.micro"
-  user_data              = <<-EOF
+  name           = "web_config"
+  image_id       = "ami-00399ec92321828f5"
+  instance_type  = "t2.micro"
+  user_data      = <<-EOF
             #!/bin/bash
             echo "Hello, World. Suck a Dick Neal" > index.html
             nohup busybox httpd -f -p ${var.Port_Number} &
             EOF
-  security_group = [aws_security_group.http.id]
-  
+  security_groups = [aws_security_group.http.id]
+
   lifecycle {
     create_before_destroy = true
   }
 }
 
-resource "aws_instance" "dummy_server" {
-  ami           = "ami-00399ec92321828f5" # us-west-2
-  instance_type = "t2.micro"
+/* Setting my scaling group to deploy */
+resource "aws_autoscaling_group" "bar" {
+  max_size            = 10
+  min_size            = 2
+  vpc_zone_identifier = data.aws_subnet_ids.private.ids
+  launch_configuration     = aws_launch_configuration.example.name
 
-  /* EOF allows multiple lines to be passed into the shell of the server, alternative to cloud-init
-  Use interpolation to reference a variable inside a string */
-  user_data              = <<-EOF
-            #!/bin/bash
-            echo "Hello, World. Suck a Dick Neal" > index.html
-            nohup busybox httpd -f -p ${var.Port_Number} &
-            EOF
-  vpc_security_group_ids = [aws_security_group.http.id]
-
-  tags = {
-    Name = "terraform-example"
+  tag {
+    key                 = "Name"
+    value               = "EC2-Web-Server"
+    propagate_at_launch = true
   }
 }
 
+/* Data is a way to query the API for information you need to build */
+data "aws_vpc" "selected" {
+  default = true
+}
 
+/* Using the VPC ID gathered above to get the subnet information */
+data "aws_subnet_ids" "private" {
+  vpc_id = data.aws_vpc.selected.id
+}
+
+/* Definining the security group for inbound connections   */
 resource "aws_security_group" "http" {
   name        = "http"
   description = "Allow TLS inbound traffic"
@@ -65,8 +71,6 @@ resource "aws_security_group" "http" {
       self             = false
     }
   ]
+
 }
 
-output "public_ip" {
-  value = aws_instance.dummy_server.public_ip
-}
