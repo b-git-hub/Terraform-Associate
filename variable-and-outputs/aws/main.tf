@@ -17,15 +17,27 @@ variable "instance_type" {
   type = string
 }
 
-/* Declaring a local value for reference in the script  */
-locals  {
-    ami           = "ami-074cce78125f09d61"
+/* Deploying a data set that searches AWS based on a filter  */
+data "aws_ami" "ubuntu" {
+  most_recent = true
+
+  filter {
+    name   = "name"
+    values = ["ubuntu/images/hvm-ssd/ubuntu-focal-20.04-amd64-server-*"]
+  }
+
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+
+  owners = ["099720109477"] # Canonical
 }
 
 /* Information to deploy server in AWS */
 resource "aws_instance" "test-instance" {
   provider      = aws
-  ami           = local.ami
+  ami           = data.aws_ami.ubuntu.id
   instance_type = var.instance_type
 
 
