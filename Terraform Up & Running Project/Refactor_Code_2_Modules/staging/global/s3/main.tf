@@ -1,14 +1,15 @@
 terraform {
   /* Using the s3 bucket and dynamoDB connect Terraform Backend to AWS  */
-/*
+
   backend "s3" {
     bucket = "brian-tf-state-123789654321"
     key    = "global/s3/terraform.tfstate"
     region = "us-east-2"
     dynamodb_table = "brian-tf-locks"
     encrypt = true
+    profile = "prod"
   }
-*/
+
   
   required_providers {
     aws = {
@@ -27,9 +28,9 @@ provider "aws" {
 /* Creates a bucket to store the terrafrom state file  */
 resource "aws_s3_bucket" "terraform_state" {
   bucket = "brian-tf-state-123789654321"
-  force_destroy = true
+  #force_destroy = true
   lifecycle {
-    prevent_destroy = false
+    prevent_destroy = true
     
   }
 

@@ -18,7 +18,7 @@ resource "aws_security_group" "lb" {
   ]
   egress = [
     {
-      description      = "Allow outbboound"
+      description      = "Allow outbbound"
       from_port        = 0
       to_port          = 0
       protocol         = "-1"

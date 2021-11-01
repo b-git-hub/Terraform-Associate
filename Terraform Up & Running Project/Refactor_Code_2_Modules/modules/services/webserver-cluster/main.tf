@@ -1,39 +1,18 @@
-terraform {
-  backend "s3" {
-    bucket         = "brian-tf-state-123789654321"
-    key            = "stage/data-stores/webserver-cluster/terraform.tfstate"
-    region         = "us-east-2"
-    dynamodb_table = "brian-tf-locks"
-    encrypt        = true
-  }
-  required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = ">= 3.63.0"
-    }
-  }
-}
-
-provider "aws" {
-  region = "us-east-2"
-}
-
-
 
 /* Calling another state file into this enviroment  */
 data "terraform_remote_state" "db" {
   backend = "s3"
   config = {
-    bucket = "brian-tf-state-123789654321"
-    key    = "stage/data-stores/mysql/terraform.tfstate"
+    bucket = var.db_remote_state_bucket
+    key    = var.db_remote_state_key
     region = "us-east-2"
   }
 }
 
 
-/* Calling the BASH file to run in the server  */
+/* Calling the BASH file to run in the server you have to tell terraform to use the directory of the module by default it'll use where ever you run the file  */
 data "template_file" "user_data" {
-  template = file("user-data.sh")
+  template = file("${path.module}/user-data.sh")
   vars = {
     server_ports = var.Port_Number
     db_port      = data.terraform_remote_state.db.outputs.port
@@ -45,8 +24,8 @@ data "template_file" "user_data" {
 resource "aws_launch_configuration" "example" {
   name            = "web_config"
   image_id        = "ami-00399ec92321828f5"
-  instance_type   = "t2.micro"
-  user_data       = "${data.template_file.user_data.rendered}"
+  instance_type   = var.instance_type
+  user_data       = data.template_file.user_data.rendered
   security_groups = [aws_security_group.http.id]
 
   lifecycle {

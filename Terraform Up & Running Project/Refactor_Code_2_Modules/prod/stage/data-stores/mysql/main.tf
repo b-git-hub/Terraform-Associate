@@ -2,13 +2,14 @@ terraform {
   /* Using the s3 bucket and dynamoDB connect Terraform Backend to AWS  */
 
   backend "s3" {
-    bucket = "brian-tf-state-123789654321"
-    key    = "stage/data-stores/mysql/terraform.tfstate"
-    region = "us-east-2"
+    profile        = "prod"
+    bucket         = "brian-tf-state-123789654321"
+    key            = "stage/data-stores/mysql/terraform.tfstate"
+    region         = "us-east-2"
     dynamodb_table = "brian-tf-locks"
-    encrypt = true
+    encrypt        = true
   }
-  
+
   required_providers {
     aws = {
       source  = "hashicorp/aws"
@@ -18,17 +19,18 @@ terraform {
 }
 
 provider "aws" {
-    region = "us-east-2"
+  region  = "us-east-2"
+  profile = "prod"
 }
 
 resource "aws_db_instance" "example" {
-    identifier_prefix = "terraform-up-and-running"
-  allocated_storage    = 10
-  engine               = "mysql"
-  instance_class       = "db.t2.micro"
-  name                 = "example_db"
-  username             = "admin"
-  password             = local.db_creds.secret_id
+  identifier_prefix   = "terraform-up-and-running"
+  allocated_storage   = 10
+  engine              = "mysql"
+  instance_class      = "db.t2.micro"
+  name                = "example_db"
+  username            = "admin"
+  password            = local.db_creds.secret_id
   skip_final_snapshot = true
 }
 

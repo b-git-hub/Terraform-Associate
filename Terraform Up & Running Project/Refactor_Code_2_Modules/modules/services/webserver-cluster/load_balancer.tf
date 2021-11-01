@@ -11,7 +11,7 @@ resource "aws_lb" "lb" {
 /* Defining a port that the load balancer will listen too   */
 resource "aws_lb_listener" "front_end" {
   load_balancer_arn = aws_lb.lb.arn
-  port              = "80"
+  port              = local.http_port
   protocol          = "HTTP"
 
   default_action {
